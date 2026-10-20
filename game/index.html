@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>잠긴 페이지</title>
+<style>
+  :root { --bg: #17110f; --panel: #221a17; --line: #4a3a33; --fg: #ece2d6; --dim: #a8988b; --torch: #f0a04b; --bad: #e0484e; color-scheme: dark }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font: 16px/1.6 "Malgun Gothic", sans-serif; padding: 16px; box-sizing: border-box }
+  form { display: grid; gap: 12px; width: min(320px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 24px }
+  h1 { margin: 0; font-size: 22px } p { margin: 0; color: var(--dim); font-size: 14px }
+  input, button { font: inherit; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg) }
+  button { background: var(--torch); color: var(--bg); border: 0; font-weight: 700; cursor: pointer }
+  #msg { color: var(--bad); min-height: 1.6em }
+</style>
+</head>
+<body>
+<form id="f">
+  <h1>🔒 잠긴 페이지</h1>
+  <p>선생님이 알려 준 비밀번호를 입력하세요.</p>
+  <label for="pw" hidden>비밀번호</label>
+  <input id="pw" type="password" autocomplete="off" autofocus>
+  <button>열기</button>
+  <p id="msg"></p>
+</form>
+<script>
+(() => {   // 감싸 두어야 풀린 페이지의 변수 이름과 안 부딪힌다
+const P = {"s":"Q8tev2zH7oEG0w0g6/RvDA==","i":"v7PC+hm6SktWTDIr","d":"rxl7UoSlI+hwJjCeSZUGyI4ZKSNL6VnsTyv4zM6mpTcIl+Lu554dqPUMff84CqIKy6XYDtDRnurMOjiAzGA3fwlDSrb7KG8Qu8V2XWJCxJIhofSAR5l4uBsWH2mVQp6ljL5qwn4SQveFTaIDNymLBtZELCZ8ovq7e9GWB5l4c21aLzzjcvEWsxrjUesnYYxXcZd8MgypnNwlA16z/Tm1y2/i7W7ZUr6yngBg6dcjngbJqdxMiCH7QqEXY1EXhcbbxoclEyDvUGCEjUhBwQ8c9aNO1dud2Z+yyYpf+KCd86juOApknEYNa0m8Bitl/wB8W3g3zjhcRZOnZ5AY3bNh7+30XVwfrUOLfVCFzHgqgZlq7Qcq3vr+Z7+/ch5T66/X5rNveTYuRjZgtczVVkk+CfY31A0oIksgGpPKJcm4s2urkbh9ul+99Wh9vQeKhrp4Vuxy/FlMVfPqQUwTba7AIwik5Dtsmer5QG49rQ0EybF2/B05Seyr1jx5wD2lR9y/S4BoVXRdLxT+X1gTCl9ZAPldEjoPY2APdjHT8jnpCpYI2rhuQ9WpeB+kAk1lBx2Eq3xE0J/1Z3Hh75Cpi2jNtmypYEEPNRF63QNIxdcVJ95HN+JgbfYfrlvDLzAjJPHx6sjhQ1Vf/lzUH3G69V1keoL2Vh4KgDbNzPW5I8WiHCoaId5ScneUHqUZ3BTgXMOzhTWbRVHaeQiXGbhFAKXqNdgDGswaA6cL38+OAahrfanyJ3uL23+UdlEICzp0iW10lpmqT7PgWSF/MM1JCX+FzJF/RbJd37cGS+f2H81IPMx4h65OFZo7dfvr0aIY6opCV2GgtYoAflgTxRo69E/qeT8Mcu9IuXK+PyocFBaQD/PTbQ6pLcYFZfux1T2+fMf+App+SzYv9AAUtkAXIcNbdxxeH0KTgeZ9QmPZEBkCJL1G6PPhBEowfFI7u0D+crPcRJKi0GNri0kYl8QD75VPn+vHxVbhwVCEZSYgTP6Z6AMUAkQGXQg0unUVZVZJTEcLh3FKjfbNP834rVilcRiyCtP4CVkfVdqHyytiCsuye4gXLgAptCYssimT743DSJo+RL378v2JOV2dGuLioKtz4euKr2+BAv6DrqS9r0PatfqH7T52QQny8c5eDPinEjnNdJ4w4vwjg7Oe7nMkgqLQuZkg6GojydE34ocg6GtbbzPw7O7rBdllzFStwTjJNg2E53Q2x8JFqvhMA2MYOz27HRjpMCrfsPAFAShbuVzpXE2yT/YgCqNHGnP35MCPYYzZ2vmpmq/rZdf3G97A+YGdglTqaz34bDsZ/hWy7lpKQJ17hKz4oGfUgRYag0LYmJpZr7mYZDgb19Sel+m8Ra2jUI2fTNCfkVfWWU/MModFNsN1VpFzLfwkJmZDSS1Lly65MkGBXPMizal+IMRBChSMTSpXLYNPY/E/wgUFqrg6bc3s8bt4+V8P9Qp/2M4wUS14Py2DNBFqQBob4T0Qh/xov963jUy4/dYv+thV7jVcgtbquo6nSN5SwJ9RaaAUvmmmUUCvy3z4M8k3t8ez3TaW4aA1XxLKvHTkP5rCgC2ClJpEVuskCBK8CqhGYWJ7v1aeKvOeBa5j8gVRmzjJtR/9hTLcwrFr0ahzW7h97EENsUCHfsCazGapuCVcPEPA077sP102rJm+z0lebrLVPWnjmrITE+MXr+AICsXeJnSVGpEKi6KoMic6KmddprCn/qRNv+DrI2d/xqJZ1BJumyhfpb7cQVlgoimuHzTwRAYrG/JZ1YR3a5BpvTLTfZILSWVMJGYcO7/y6yLaHgF8uFPjAwpw52KyPHUnoaNupJPnmIZIbWIclOicK45XKP70lCbfGT3Glo0trQQDbwRK4uGFupP0Lk8tLJkm70e5nOq0b+QJeDlldHJ4J/nr4TQ/MwjDqB5VJmdbGrDTtVmUBUCsDZZ3MgYmWoXpAaMsrXceW1bq1nEmnV+BViwczL7exYWTSvGBMfGqh16TecBeLehw8TnPE8GsP0ZSMi+zDq7oMeImGpbfhqc04rOpeX0whVcMmnXpVM/VwiWjlWRD2RieXTLy5MNBNvdmdLrJlZvJ2iVve9zkrL9qstdXNhWt2hmKD1d6v7qHgPT3hlnMp1HM7Y78SvmNs7+oy2yKi0yo/xHa3/b+9VosGW2nNakTHtxFxqLYyMfH3T6PR5HxExM/1xYasvS2acqhAht12EWkmjtC+eNWxVBzCtb1bo3DVoLCVXmVWye0rQxW8nVx06EVXM9rZZo8R/JiY3us2gwFPLSZPgGpdK3Ob5l+wagY2bmYdKEO3a29FLoBBVBrAzPkwlHj4eQA1SZfNu0TAToIy/jHVog3pcYia+igR3seQ7Lid8QX+mn/8bHG46DppBMGu7dpYFR2yZ8+Ej7P31uDlCWVNJ2z8DpWYHWkQJvf331iLumym4wNHb4I2W0T53iuede5H4hyYEpZThurhtfBNXVTZPzQJCIbd9mUXlETTlazt4iio7kCuVMFwqQK5+ubdOc0dOdJLvFMFOpBS6gqAwzp9aLLIMeagSuBqLAwh7cNATxQCozJzz6X0vHLv+bGF1MDLd+lmvZtJPod2FZDoPltBwZDBSMkHhnqF7qLBbW1+8n0FxpiqZfNScyo/4U3ZKHo60+TAeS7HKshV8BocVI7ZSItrBKPrIL67z2NaXW2zToyOlexNeGuBWaQq6HIAVnaUAAg/YhBimm0UnAiXNWKSh/lLI5OmPQruqWSVGh76wLL9+r0MkFer6pW2BqMEfLrbpP2yE1a+cBLv4kcpd5Gm/5FpE2jS0SigXjutVUkEutlGVF8+vBC06j4hKd02Y6l8fux3gQX+0TzbiuEQiMYHH1RW5ytMkzdK7TBXP/YdOOVqGxpEzzO/olVnTjcDhy4iTsWM3I1//iFNt2xkBlQDapTBt7Y0bhU0l66fUP2yjj5ATFiuceLLV6h356ZfBoRFYFuZ9qU5H1RSlB4jTbZNde6IbhvSiyLl/57FAL/yQpvDiZcYezE5yqC1DMmeCt+EIqnAfMY6SCl9wJmUf/Krh90G36oKOTEuRqjIgMpuTwYm/I71etpIewCp6ASROS642/dgE8I3cNKp1YjUobGeEfQ2Q23ANLDbYKcWa4Gibhg2Mg186ZMSuKoczVaQgr9n1sEvhhBQfRnyZKn1BNpV3y9rGsBmo7c2o4aayPdYD6/Z31+qpBkbk+Ee+VRJq3xXPWlS18YfdnIZ0Gr2SfRwqYR+/fOCJuNUOR5DJvfMEGZndC9czGHGdtg4xrkiEWSyD8dk/YXUNg0YURUDHXyS8bDcWd5X8X/xGPWDOQwvcj+//8tuKSG5lNHK+frobgB201c2v3alKxaiGSt6ramyi5QUUBkQLJWT4fEOVfutP+fBdupfqUtH09vOWLbA0/m81I9DoLRacQ3o9zpPi0Xlt1SBeQxpzyqjReP7aQV96Mrwd5vrrkzRX7N+9PT/iRyBVsg+PIKMMkhsYQaD2Z0O2jGg9SJaXMz1ryRopRSv1r7uNg5F00evMCSHVbUAkxx5A93fWDerIyEdsXjsZOnLgiGUUh664AZh/HxR+gYnuQv6edA9q3MnXHzkh2lh33X4AJj+DUrfPJYKJE3q1/uPlmEs/xvqPZU+H7/5VG26jHgFGtu7q+ZyX6fug1ORHsV7SltViNTeFnFLgTDE9YCP+R2obRbEVV0vzV+AtQLd2kGMM2FSBNLagY1kMBK2nJHd0owK1rXCGjMXxVlBRemIpPa1EVQl9uZSBT1VZNn1THIHOoDNB5ktWJM6Vc7Vwg68ljz0nH8KfjZIuTGenS5bv4ybM9NkjaliwUv62iUIxVKA7xZ9pqxyrnok/h24Fr1wm/BPNrvrizplY3hCw7JvXKOMJCvqkUpZyRtbngA7IVvUKAJvDa7PP6YElgkcO1vBX/R83S9Mmr0ergk7ZqLvhKZWCz/P9tMb5j6w6D6B4djdHYcgjnFFdkJsL2OvT4wXTH+OnsdkKRPxhFg+F0ZTl30YIoVSuXBuETDT+JCriKiFodnJDaL0fR3vPDVZ5lNxOP4vC04otrdQmF4+kKABPLfw/TO/CqlBDs394V/YcA9wUNqjxYlaIfS6GEUY/kOqnuU//jp32GYpFfrCWT7XyxeFxugcKKYxM9gyQCz1O4NtGc6cMja+sXnqtMc7qoj1Dn+MrOrVv+c3YY2TG6FHihX/ceJWarL0TBXEYESieMLxmAlirW5WpcXlD3l1+LQNjY+378UrHTRp6s5QPuOrd7yKqHKXl34yqtptETUVa9iKoqjRfpnheczfhdeFlLWgsX5ENylHRkDZ2wC8NG+ZZop8fjYn4DittjYu9HC7dt99N7mf7X0bCzl6x875PpxTczlUbTH6qhPqKKYSfF1x0p4XyPuIquXxbMfi4/00J9bvM2LALcR8MItjYoClw+I4uefhItkXteDUqqnGZSsxbBAWZJ54eSwBHwhrrqaRr8pNCc="};
+const bin = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function unlock(pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bin(P.s), iterations: 200000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const html = new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin(P.i) }, key, bin(P.d)));
+  try { sessionStorage.setItem('class-pw', pw); } catch {}
+  document.open(); document.write(html); document.close();
+}
+document.getElementById('f').onsubmit = e => {
+  e.preventDefault();
+  unlock(document.getElementById('pw').value).catch(() => { document.getElementById('msg').textContent = '비밀번호가 틀렸습니다.'; });
+};
+let saved = null; try { saved = sessionStorage.getItem('class-pw'); } catch {}
+if (saved) unlock(saved).catch(() => {});
+})();
+</script>
+</body>
+</html>
