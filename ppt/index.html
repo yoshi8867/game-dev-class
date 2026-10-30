@@ -104,7 +104,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <script>
 // ===== 구간별 코드 (학생용에서 그 구간에 들어가려면 필요) =====
 // build.py가 학생용(docs/index.html)으로 뽑을 때 이 줄을 CODES = null + 해시로 바꾼다. 원본은 선생님 PC에만 둔다.
-const CODES = null, SALT = '57b641e850aebe9d', HASHES = {"s2": "c02738d349e669e1a44938d5896fc34935823ce3fd8c70746d908dcc148b248d", "s3": "a8eb11491f76a1074398029a48639ea42622a539074d17e5bd8b6955cbf01bfe", "s4": "107f353d38720c137aef164755329aebac987365cd53885fcc1a980c7a7d05e0", "s5": "107cfcb420b630150bbb591955ca4cd1cb5b167c7d574da40b74a49c6fed4890", "g": "229174a1ad1ea8fb61a628ebe3603250d4b1119669beda9c581b341dd88a7eb3"};
+const CODES = null, SALT = '9b5078242b68dd83', HASHES = {"s2": "1eea7a3deaabe3f050b1ccb8b8d4964ad754cb67c2a1c1d9890ac36fdc552d3d", "s3": "ecf36ab9bd1da632fdf2626a8820538dd78e1ca8e388163f1ac727e55bf9a6ea", "s4": "705a733443a73f6736a91fffea4c770c28255597957ca4f2c59a5ee07ab2d837", "s5": "239d381811bffd14d4b691defcca7d9def8d64fa46901ce68a97ec17466d0579", "g": "d9f8947dba4e0ad6251a0eeaed26452f350f87df6c82ab299bf9b0efa937e232"};
 const LOCKED = CODES || HASHES;   // 잠금 구간 목록
 const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
 const check = async (sec, code) => CODES ? code === CODES[sec] : await sha(SALT + code) === HASHES[sec];
