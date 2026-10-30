@@ -10,10 +10,6 @@
 * { box-sizing: border-box }
 body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: "Malgun Gothic", sans-serif; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 32px 16px }
 body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 6px; background: var(--rainbow) }
-#gate { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: grid; place-items: center; font-size: 22px }
-#gate input { font: inherit; font-size: 28px; width: 200px; text-align: center; padding: 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel); color: var(--fg) }
-#gate button { font: inherit; padding: 10px 18px; border: 0; border-radius: 8px; background: var(--ok); color: #0b1a12; cursor: pointer; margin-left: 8px }
-#gmsg { color: #ff6b8a; min-height: 1.5em; text-align: center; margin-top: 10px }
 #score { font-size: 56px; font-weight: 700; margin: 0 }
 #rate { color: var(--dim) }
 #btn { width: 220px; height: 220px; border-radius: 50%; border: 0; font-size: 32px; font-weight: 700; color: #111; background: var(--rainbow); cursor: pointer; user-select: none; box-shadow: 0 0 30px #ffb34766; transition: transform .08s }
@@ -30,7 +26,6 @@ body.fever #btn { animation: glow .4s infinite alternate }
 </style>
 </head>
 <body>
-<form id="gate"><div>🔒 선생님이 알려 주는 암호를 넣으세요<div style="margin-top:14px"><input id="pw" type="password" autocomplete="off" aria-label="암호"><button>열기</button></div><div id="gmsg"></div></div></form>
 <p id="score">0</p>
 <div id="rate"></div>
 <button id="btn">클릭!</button>
@@ -38,14 +33,6 @@ body.fever #btn { animation: glow .4s infinite alternate }
 <div id="shop"></div>
 
 <script>
-// ===== 암호 문: build.py가 학생용(docs/)으로 뽑을 때 PW를 null + 해시로 바꾼다 =====
-const PW = null, SALT = '736913950e3b70da', HASH = '80a5d0a5842c2122dcfa02db315a6dedd5ca74e82ab312c434c8048554f89ece';
-const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
-const ok = async v => PW ? v === PW : await sha(SALT + v) === HASH;
-const gate = document.getElementById('gate');
-(async () => { if (await ok(sessionStorage.getItem('clicker-pw') || '')) gate.remove(); })();
-gate.onsubmit = async e => { e.preventDefault(); const v = document.getElementById('pw').value.trim();
-  if (await ok(v)) { sessionStorage.setItem('clicker-pw', v); gate.remove(); } else document.getElementById('gmsg').textContent = '암호가 틀렸어요'; };
 
 // ===== 밸런스: 레벨 L(1~100). 효과 = 레벨 + 지수 보너스(매 레벨 반드시 오른다), 가격은 레벨마다 35%씩.
 // 시뮬(초당 2클릭, 싼 것부터 구매) 기준 첫 구매 25초, 이후 구매 간격 15초 → 1분 이상으로 서서히 벌어진다. 가격이 효과보다 훨씬 빨리 올라야 간격이 생긴다 =====
