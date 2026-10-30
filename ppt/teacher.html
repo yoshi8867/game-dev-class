@@ -104,7 +104,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <script>
 // ===== 구간별 코드 (학생용에서 그 구간에 들어가려면 필요) =====
 // build.py가 학생용(docs/index.html)으로 뽑을 때 이 줄을 CODES = null + 해시로 바꾼다. 원본은 선생님 PC에만 둔다.
-const CODES = { s2: '7097', s3: '7864', s4: '7772', s5: '2688', g: 'gold77' }, SALT = '', HASHES = null;
+const CODES = { s2: '3333', s3: '5588', s4: '3456', s5: '4321', g: '0077' }, SALT = '', HASHES = null;
 const LOCKED = CODES || HASHES;   // 잠금 구간 목록
 const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
 const check = async (sec, code) => CODES ? code === CODES[sec] : await sha(SALT + code) === HASHES[sec];

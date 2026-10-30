@@ -39,7 +39,7 @@ body.fever #btn { animation: glow .4s infinite alternate }
 
 <script>
 // ===== 암호 문: build.py가 학생용(docs/)으로 뽑을 때 PW를 null + 해시로 바꾼다 =====
-const PW = null, SALT = '42c873ece31ba196', HASH = 'f7aaeeb98843d49c366d8223c3b0c480160cadc535cc1a6a13c5acb95eb3cda9';
+const PW = null, SALT = 'ceb50881a5a2ecaf', HASH = '70b251a05fc3d54f125b740151eb5b6a1b3e7c78d6445e1336d5454318eba5f6';
 const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
 const ok = async v => PW ? v === PW : await sha(SALT + v) === HASH;
 const gate = document.getElementById('gate');
