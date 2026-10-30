@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>클리커 게임</title>
+<style>
+:root { --bg: #0f0d14; --panel: #1b1823; --line: #3a3447; --fg: #f1ecf7; --dim: #a59eb3; --accent: #ffb347; --ok: #8fe3b0;
+  --rainbow: linear-gradient(90deg, #ff4d6d, #ffb347, #ffe66d, #6ee7a8, #4dc3ff, #a78bfa); color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: "Malgun Gothic", sans-serif; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 32px 16px }
+body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 6px; background: var(--rainbow) }
+#gate { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: grid; place-items: center; font-size: 22px }
+#gate input { font: inherit; font-size: 28px; width: 200px; text-align: center; padding: 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel); color: var(--fg) }
+#gate button { font: inherit; padding: 10px 18px; border: 0; border-radius: 8px; background: var(--ok); color: #0b1a12; cursor: pointer; margin-left: 8px }
+#gmsg { color: #ff6b8a; min-height: 1.5em; text-align: center; margin-top: 10px }
+#score { font-size: 56px; font-weight: 700; margin: 0 }
+#rate { color: var(--dim) }
+#btn { width: 220px; height: 220px; border-radius: 50%; border: 0; font-size: 32px; font-weight: 700; color: #111; background: var(--rainbow); cursor: pointer; user-select: none; box-shadow: 0 0 30px #ffb34766; transition: transform .08s }
+#btn:active { transform: scale(.93) }
+body.fever #btn { animation: glow .4s infinite alternate }
+@keyframes glow { from { box-shadow: 0 0 30px #ff4d6d } to { box-shadow: 0 0 70px #ffe66d } }
+#fever { height: 28px; font-weight: 700; color: var(--accent) }
+#shop { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; width: min(900px, 100%) }
+.item { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 8px }
+.item h3 { margin: 0; color: var(--accent) }
+.item small { color: var(--dim) }
+.item button { font: inherit; font-weight: 700; padding: 10px; border: 0; border-radius: 8px; background: var(--ok); color: #0b1a12; cursor: pointer }
+.item button:disabled { background: var(--line); color: var(--dim); cursor: not-allowed }
+</style>
+</head>
+<body>
+<form id="gate"><div>🔒 선생님이 알려 주는 암호를 넣으세요<div style="margin-top:14px"><input id="pw" type="password" autocomplete="off" aria-label="암호"><button>열기</button></div><div id="gmsg"></div></div></form>
+<p id="score">0</p>
+<div id="rate"></div>
+<button id="btn">클릭!</button>
+<div id="fever"></div>
+<div id="shop"></div>
+
+<script>
+// ===== 암호 문: build.py가 학생용(docs/)으로 뽑을 때 PW를 null + 해시로 바꾼다 =====
+const PW = null, SALT = '42c873ece31ba196', HASH = 'f7aaeeb98843d49c366d8223c3b0c480160cadc535cc1a6a13c5acb95eb3cda9';
+const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
+const ok = async v => PW ? v === PW : await sha(SALT + v) === HASH;
+const gate = document.getElementById('gate');
+(async () => { if (await ok(sessionStorage.getItem('clicker-pw') || '')) gate.remove(); })();
+gate.onsubmit = async e => { e.preventDefault(); const v = document.getElementById('pw').value.trim();
+  if (await ok(v)) { sessionStorage.setItem('clicker-pw', v); gate.remove(); } else document.getElementById('gmsg').textContent = '암호가 틀렸어요'; };
+
+// ===== 밸런스: 레벨 L(1~100). 효과 = 레벨 + 지수 보너스(매 레벨 반드시 오른다), 가격은 레벨마다 35%씩.
+// 시뮬(초당 2클릭, 싼 것부터 구매) 기준 첫 구매 25초, 이후 구매 간격 15초 → 1분 이상으로 서서히 벌어진다. 가격이 효과보다 훨씬 빨리 올라야 간격이 생긴다 =====
+const MAX = 100, g = (base, r, L) => Math.round(base * r ** (L - 1)), grow = L => L + Math.floor(1.15 ** L) - 1;
+const ITEMS = {
+  click: { name: '클릭 강화', cost: L => g(50, 1.35, L),   eff: L => ({ add: grow(L) }),  desc: e => `클릭당 ${fmt(1 + e.add)}점` },
+  auto:  { name: '자동 획득', cost: L => g(200, 1.35, L),  eff: L => ({ gain: grow(L) }), desc: e => `초당 ${fmt(e.gain)}점` },
+  fever: { name: '피버타임', cost: L => g(400, 1.35, L), eff: L => ({ on: Math.min(5 + Math.floor(L / 2), 30), off: Math.max(30 - Math.floor((L + 1) / 2), 5), mul: +(2 + L / 5).toFixed(1) }),
+           desc: e => `${e.on}초 동안 ×${e.mul}, 쿨타임 ${e.off}초` },
+};
+// 점수 표시: 1,000 단위마다 K, M, B. 1200 → 1.2K
+const fmt = n => { let u = ''; for (const s of ['K', 'M', 'B', 'T']) { if (n < 1000) break; n /= 1000; u = s; } return (u && n < 100 ? n.toFixed(1).replace(/\.0$/, '') : Math.floor(n)) + u; };
+
+let score = 0, lv = { click: 0, auto: 0, fever: 0 }, feverLeft = 0, coolLeft = 0;
+const cur = k => lv[k] ? ITEMS[k].eff(lv[k]) : null;
+const mul = () => feverLeft > 0 ? cur('fever').mul : 1;
+const perClick = () => (1 + (cur('click')?.add || 0)) * mul();
+
+const $ = id => document.getElementById(id);
+function render() {
+  $('score').textContent = fmt(Math.floor(score));
+  $('rate').textContent = `클릭당 ${fmt(perClick())}점` + (cur('auto') ? ` · 초당 ${fmt(cur('auto').gain * mul())}점 자동` : '');
+  $('fever').textContent = feverLeft > 0 ? `🔥 피버 ×${mul()} ${feverLeft}초` : coolLeft > 0 ? `쿨타임 ${coolLeft}초` : '';
+  document.body.classList.toggle('fever', feverLeft > 0);
+  $('shop').innerHTML = Object.keys(ITEMS).map(k => {
+    const it = ITEMS[k], L = lv[k], cost = it.cost(L + 1);
+    return `<div class="item"><h3>${it.name} <small>Lv.${L}/${MAX}</small></h3>
+      <div>${L ? '지금: ' + it.desc(cur(k)) : '<small>아직 없음</small>'}</div>
+      ${L < MAX ? `<div>다음: ${it.desc(it.eff(L + 1))}</div><button data-k="${k}" ${score < cost ? 'disabled' : ''}>${L ? '업그레이드' : '구입'} · ${fmt(cost)}점</button>` : '<button disabled>MAX</button>'}</div>`;
+  }).join('');
+  $('shop').querySelectorAll('button[data-k]').forEach(b => b.onclick = () => buy(b.dataset.k));
+}
+function buy(k) {
+  const L = lv[k], cost = ITEMS[k].cost(L + 1); if (L >= MAX || score < cost) return;
+  score -= cost; lv[k]++;
+  if (k === 'fever' && lv[k] === 1) feverLeft = cur('fever').on;
+  render();
+}
+$('btn').onclick = () => { score += perClick(); render(); };
+
+setInterval(() => {                       // 1초 틱: 자동 획득 + 피버/쿨타임 진행
+  if (cur('auto')) score += cur('auto').gain * mul();
+  if (lv.fever) {
+    if (feverLeft > 0) { if (--feverLeft === 0) coolLeft = cur('fever').off; }
+    else if (--coolLeft <= 0) feverLeft = cur('fever').on;
+  }
+  render();
+}, 1000);
+render();
+</script>
+</body>
+</html>

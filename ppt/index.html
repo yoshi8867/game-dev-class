@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이브코딩 게임 수업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* 16:9 무대 하나를 창 크기에 맞춰 늘리고, 그 아래에 편집용 지시 입력칸 */
+:root {
+  --bg: #0f0d14; --panel: #1b1823; --line: #3a3447; --fg: #f1ecf7; --dim: #a59eb3; --accent: #ffb347; --code: #8fe3b0; --lock: #ff6b8a;
+  --rainbow: linear-gradient(90deg, #ff4d6d, #ffb347, #ffe66d, #6ee7a8, #4dc3ff, #a78bfa);
+  --display: "Do Hyeon", "Malgun Gothic", sans-serif; --body: "Gowun Dodum", "Malgun Gothic", sans-serif; --mono: "JetBrains Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+html, body { height: 100%; margin: 0 }
+body { background: #07060a; color: var(--fg); font-family: var(--body); display: flex; flex-direction: column; overflow: hidden }
+#bar { display: flex; gap: 8px; align-items: center; padding: 6px 12px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 13px; flex-wrap: wrap }
+#bar button, #bar select { font: inherit; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer }
+#bar button.on { border-color: var(--accent); color: var(--accent) }
+#bar #save { background: var(--accent); color: #1a1208; border: 0; font-weight: 700 }
+#bar .sp { flex: 1 } #bar #status { color: var(--dim) }
+#view { flex: 1; min-height: 0; display: grid; place-items: center; position: relative }
+#stage { width: 1280px; height: 720px; position: absolute; left: 50%; top: 50%; transform-origin: center; background: var(--bg); overflow: hidden; border-radius: 6px }
+#stage::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--rainbow) }
+.slide { position: absolute; inset: 0; padding: 70px 90px 60px; display: flex; flex-direction: column; gap: 22px }
+.sec { font: 22px var(--display); color: var(--accent); letter-spacing: .04em }
+h1 { font: 64px/1.15 var(--display); margin: 0; text-wrap: balance }
+h1.huge { font-size: 96px }
+.body { font-size: 30px; line-height: 1.6; flex: 1; min-height: 0 }
+.body ul { margin: 0; padding-left: 36px } .body li { margin: 6px 0 } .body li::marker { color: var(--accent) }
+.body small { color: var(--dim); font-size: 24px }
+.body b { color: #fff }
+.copy { position: relative; font: 24px/1.55 var(--body); background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--code); border-radius: 8px; padding: 18px 120px 18px 24px; margin: 8px 0; white-space: pre-wrap }
+.copy button { position: absolute; top: 12px; right: 12px; font: 18px var(--display); padding: 6px 14px; border-radius: 6px; border: 0; background: var(--code); color: #0b1a12; cursor: pointer }
+kbd, code { font: 26px var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1px 10px; color: var(--code) }
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(var(--n, 3), 1fr) }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; font-size: 26px }
+.card .big { font: 54px/1.1 var(--display); display: block; margin-bottom: 6px }
+.card .k { font: 30px var(--display); color: var(--accent); display: block }
+.bars { display: grid; gap: 10px; font: 22px var(--mono) }
+.bars div { display: flex; align-items: center; gap: 12px } .bars span { height: 36px; border-radius: 4px; display: inline-grid; place-items: center; color: #111; font-weight: 700 }
+.foot { position: absolute; right: 30px; bottom: 18px; color: var(--dim); font-size: 16px }
+.teacher { position: absolute; left: 30px; bottom: 16px; font-size: 16px; color: var(--accent) }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start }
+.chat { display: flex; flex-direction: column; gap: 14px; font: 26px var(--display) }
+.chat > div { min-width: 55%; max-width: 75%; padding: 14px 22px; border-radius: 18px; font-size: 32px }
+.chat small { font: 16px var(--body); opacity: .8; margin-left: 6px }
+.chat .q { align-self: flex-end; background: #1e4a6b; border-bottom-right-radius: 4px }
+.chat .a { align-self: flex-start; background: #3d2f63; border-bottom-left-radius: 4px }
+.chat .now { background: #8a5a14; outline: 2px solid var(--accent) }
+.chat .sum { max-width: 100%; align-self: stretch; text-align: center; border: 2px dashed var(--accent); font: 22px var(--body); color: var(--accent) }
+.tune { display: grid; gap: 18px; font-size: 26px }
+.tune label { display: grid; grid-template-columns: 130px 1fr 80px; align-items: center; gap: 12px }
+.tune input[type=range] { width: 100%; accent-color: var(--accent); height: 28px }
+.tune output { font: 22px var(--mono); color: var(--code) }
+.tune textarea { font: 20px/1.5 var(--mono); height: 110px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; resize: none }
+.cbtn { font: 20px var(--display); padding: 8px 16px; border-radius: 8px; border: 0; background: var(--code); color: #0b1a12; cursor: pointer; justify-self: start }
+.demo { display: grid; place-items: center; height: 380px; background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; overflow: hidden }
+.demo button { font-family: var(--display); padding: .5em 1.2em; border-radius: 12px; border: 0; background: var(--rainbow); color: #111; cursor: pointer; transform-origin: center }
+.gamebox { position: relative; flex: 1; min-height: 0; border-radius: 10px; overflow: hidden; background: #000 }
+.gamebox img { width: 100%; height: 100%; object-fit: contain; display: block }
+.link { display: inline-block; font: 40px var(--display); color: #1a1208; background: var(--accent); text-decoration: none; padding: 16px 30px; border-radius: 14px }
+.link small { display: block; font: 18px var(--mono); color: #4a3a1a; margin-top: 6px; letter-spacing: 0 }
+/* 진행.html 흐름도 예시 */
+.flow { display: grid; gap: 0; font-size: 22px }
+.flow .step { display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px 18px; min-height: 44px }
+.flow .step .box { font-size: 28px; width: 34px; text-align: center } .flow .step b { white-space: nowrap }
+.flow .step small { color: var(--dim); font-size: 19px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.flow .step .st { font: 18px var(--display); padding: 2px 12px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap }
+.flow .done { border-color: #3f8a5c } .flow .done .box, .flow .done .st { color: var(--code) }
+.flow .now { border-color: var(--accent); background: #2a2010 } .flow .now .box, .flow .now .st, .flow .now b { color: var(--accent) }
+.flow .todo { opacity: .6 }
+.flow .arrow { text-align: center; color: var(--dim); font-size: 16px; line-height: 1; padding: 0 0 0 34px }
+/* 잠금 장 */
+.lockslide { align-items: center; justify-content: center; text-align: center }
+.lockslide .icon { font-size: 90px }
+.lockslide input { font: 44px var(--mono); width: 260px; text-align: center; padding: 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel); color: var(--fg); letter-spacing: .2em }
+.lockslide .code { font: 140px var(--mono); color: var(--lock); letter-spacing: .15em }
+.lockslide .msg { color: var(--lock); min-height: 1.5em; font-size: 24px }
+/* 편집 칸 */
+#edit { display: none; gap: 8px; padding: 8px 12px; background: var(--panel); border-top: 1px solid var(--line) }
+body.editing #edit { display: flex }
+#edit label { font: 15px var(--display); color: var(--accent); white-space: nowrap; padding-top: 6px }
+#note { flex: 1; height: 92px; resize: vertical; font: 15px/1.5 var(--body); background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px }
+.student #mode, .student #editBtn, .student #save, .student #status, .student #edit { display: none }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+</style>
+</head>
+<body>
+<div id="bar">
+  <button id="prev" title="이전 (←)">◀</button><span id="pos"></span><button id="next" title="다음 (→)">▶</button>
+  <select id="jump" aria-label="장 이동"></select>
+  <button id="mode" title="교사용/학생용 보기 전환">교사용</button>
+  <button id="editBtn" class="on" title="지시 입력칸 열기/닫기 (E)">지시 입력</button>
+  <span class="sp"></span><span id="status"></span>
+  <button id="save" title="지시를 파일로 저장 (Ctrl+S)">SAVE</button>
+</div>
+<div id="view"><div id="stage"></div></div>
+<div id="edit"><label for="note">이 장 지시</label><textarea id="note" placeholder="이 장을 어떻게 고칠지 적어 주세요. 예: 제목을 ○○로, 예시 추가, 이 뒤에 장 하나 더 만들기…"></textarea></div>
+
+<script>
+// ===== 구간별 코드 (학생용에서 그 구간에 들어가려면 필요) =====
+// build.py가 학생용(docs/index.html)으로 뽑을 때 이 줄을 CODES = null + 해시로 바꾼다. 원본은 선생님 PC에만 둔다.
+const CODES = null, SALT = '2f44d5677f5673a0', HASHES = {"s2": "253cdc2f6af7fbbd2bc927dcb108d71e4a06dc910fda14b8454e6598ecde3e1d", "s3": "4e7d838b1922a29d0ef3d520d905b81eb05be62662cf19b50b975da0d6d268d3", "s4": "dc13c01f2f5d31bd66ad2335492592ec8b11ad72374727d3b491c538aba1568d", "s5": "a760058a20bcd41ba734944e1807607a1d1f2632dc02d5fd315f803f7d2a473f", "g": "850548e32d6786bac98e89daa4d31e3c9970386b08dc7679e546676e952293e1"};
+const LOCKED = CODES || HASHES;   // 잠금 구간 목록
+const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
+const check = async (sec, code) => CODES ? code === CODES[sec] : await sha(SALT + code) === HASHES[sec];
+if (!CODES) document.body.classList.add('student');
+
+const GAME_URL = '../game/index.html';   // 던전 게임 사이트(입구). build.py가 배포 주소로 바꾼다
+const copy = t => `<div class="copy">${t}<button>복사</button></div>`;
+// ===== 장 목록 ===== (sec: 구간, 구간 첫 장 앞에는 잠금 장이 끼어든다)
+const SLIDES = [
+  { id: 'cover', sec: 's1', html: `<div class="sec">09:00 – 11:30</div><h1 class="huge">바이브 코딩으로<br>게임 만들기</h1><div class="body"><small>Claude Code로 하는 바이브코딩</small></div>` },
+  { id: 'vibe', sec: 's1', title: '바이브코딩', html: `<div class="sec">1. 이론</div><h1>바이브코딩이란?</h1><div class="body"><ul><li>코드를 직접 치지 않고, <b>말로 시켜서</b> 프로그램을 만드는 것</li><li>시킨다 → 결과를 본다 → 고쳐 달라고 한다 → 반복</li><li>중요한 건 코딩 실력보다 <b>원하는 걸 정확히 말하는 힘</b></li></ul></div>` },
+  { id: 'company', sec: 's1', title: '회사별 AI', html: `<div class="sec">1. 이론</div><h1>AI를 만드는 회사들</h1><div class="body"><div class="grid"><div class="card"><span class="k">OpenAI</span>ChatGPT</div><div class="card"><span class="k">Anthropic</span>Claude</div><div class="card"><span class="k">Google</span>Gemini</div></div></div>` },
+  { id: 'agent', sec: 's1', title: '내 컴퓨터를 조작하는 AI', html: `<div class="sec">1. 이론</div><h1>"네가 내 컴퓨터 조작해 줘"</h1><div class="body"><div class="grid"><div class="card"><span class="k">Codex</span><small>OpenAI</small></div><div class="card" style="border-color:var(--accent)"><span class="k">Claude Code</span><small>Anthropic · 오늘 쓸 것</small></div><div class="card"><span class="k">Antigravity</span><small>Google</small></div></div><div class="grid" style="--n:2;margin-top:24px"><div class="card"><span class="k">지금까지</span>척척박사 교수님에게 <b>채팅으로 물어보면서</b> 내가 하기</div><div class="card" style="border-color:var(--accent)"><span class="k">오늘 배울 방식</span>척척박사 교수님한테 <b>내 컴퓨터를 대신 조작해 달라고</b> 하기</div></div></div>` },
+  { id: 'model', sec: 's1', title: '모델 = 엔진', html: `<div class="sec">1. 이론</div><h1>모델은 일종의 엔진</h1><div class="body"><div class="grid" style="--n:4"><div class="card"><span class="big">🛵</span><span class="k">Haiku</span>오토바이</div><div class="card"><span class="big">🚗</span><span class="k">Sonnet</span>소형차</div><div class="card"><span class="big">🏎️</span><span class="k">Opus</span>레이싱카</div><div class="card"><span class="big">🚀</span><span class="k">Fable</span>로켓</div></div><ul style="margin-top:24px"><li>빠르고 가벼운 일엔 작은 엔진, 어렵고 큰 일엔 큰 엔진</li></ul></div>` },
+  { id: 'token', sec: 's1', title: '토큰 = 연료', html: `<div class="sec">1. 이론</div><h1>토큰은 연료</h1><div class="body"><ul><li>AI가 읽고 쓰는 글자 조각 = <b>토큰</b></li><li>질문하고 답을 받을 때마다 연료가 든다</li><li>큰 엔진일수록 연료를 많이 먹는다</li></ul></div>` },
+
+  { id: 'today', sec: 's1', title: '오늘 할 것', html: `<div class="sec">2. 오늘 할 것</div><h1>오늘 할 것</h1><div class="body"><ul><li>Claude Code로 게임 만들기 (바이브코딩)</li><li>중간중간 이론 설명: 그때는 <b>실습을 멈추고</b> 집중 + 유인물에 빈 칸 채우기, 메모</li></ul></div>` },
+  { id: 'run', sec: 's2', title: 'claude 실행', html: `<div class="sec">2. 오늘 할 것</div><h1>Claude Code 켜기</h1><div class="body"><ul><li>바탕화면에 <b>작업용 폴더</b> 만들기 → 그 폴더 열기</li><li>위쪽 <b>경로 창</b> 클릭 → <code>cmd</code> 입력 후 Enter</li><li><code>claude</code> 입력 후 Enter → <b>Yes, I trust this folder</b> 선택</li><li>모델 바꾸기: <code>/model</code> → <b>sonnet</b> 선택</li></ul></div>` },
+  { id: 'hello', sec: 's2', title: '첫 지시', html: `<div class="sec">2. 오늘 할 것</div><h1>첫 번째 지시</h1><div class="body">${copy('헬로월드 HTML 페이지 아주아주 간단히 만들어줘. 다크+무지개LED 스타일로 디자인해. 실습용이니까 간단하고 짧게 만들어.')}<ul style="font-size:26px;margin-top:14px"><li>붙여넣기: <b>마우스 우클릭</b></li><li>행 지우기: <kbd>Ctrl</kbd> + <kbd>U</kbd></li><li>띄어쓰기 단위로 이동: <kbd>Ctrl</kbd> + <kbd>←</kbd> <kbd>→</kbd></li></ul></div>` },
+  { id: 'firework', sec: 's2', title: '두 번째 지시', html: `<div class="sec">2. 오늘 할 것</div><h1>두 번째 지시</h1><div class="body">${copy('그 페이지 중앙에 버튼 만들어서, 그 버튼 누적 10회 클릭하면 5초 폭죽 터지게 해. 10 배수마다 터지게 해.')}<ul style="margin-top:14px"><li>그밖에 추가 기능을 각자 자유롭게 넣어봅시다.</li></ul></div>` },
+  { id: 'ask', sec: 's2', title: '질문도 된다', html: `<div class="sec">2. 오늘 할 것</div><h1>질문도 할 수 있다</h1><div class="body">${copy('HTML이 뭐야? 초심자 수준에 맞게 5줄 이내로 설명해.')}<ul style="margin-top:14px"><li>HTML뿐만 아니라 토큰, 클로드코드 등 궁금한 건 무엇이든 물어보자</li></ul></div>` },
+
+  { id: 'session', sec: 's3', title: '세션', html: `<div class="sec">3. 이론</div><h1>세션</h1><div class="body"><ul><li><b>세션</b> = AI와 나누는 대화 한 묶음</li><li>새 일을 시작할 땐 새 세션에서 (새 술은 새 부대에)</li><li>AI는 그 세션에서 오간 말만 기억한다 = <b>컨텍스트</b></li></ul></div>` },
+  { id: 'context', sec: 's3', title: '퀴즈: 토큰 계산', html: `<div class="sec">3. 이론 · 퀴즈</div><h1>질문 C를 보내면 토큰은 얼마나 들까?</h1><div class="body cols"><div><div class="chat"><div class="q">A <small>질문</small></div><div class="a">a <small>답변</small></div><div class="q">B <small>질문</small></div><div class="a">b <small>답변</small></div><div class="q now">C <small>새 질문</small></div></div></div><div><ul><li>오른쪽 = 내 질문, 왼쪽 = AI의 답변</li><li>A에 a로 답하고, B에 b로 답했다</li><li><b>A, a, B, b, C 모두 텍스트 길이가 100</b>이라고 가정하자</li></ul><div class="grid" style="--n:3;margin-top:22px"><div class="card"><span class="k">①</span>100</div><div class="card"><span class="k">②</span>300</div><div class="card"><span class="k">③</span>500</div></div></div></div>` },
+  { id: 'rot', sec: 's3', title: '오염과 부패', html: `<div class="sec">3. 이론</div><h1>컨텍스트 오염과 부패</h1><div class="body"><div class="grid" style="--n:2"><div class="card"><span class="k">오염</span>필요 없어진 내용, 틀린 정보가 남아서 AI가 헷갈린다</div><div class="card"><span class="k">부패</span>대화가 너무 길어져 앞부분을 흐릿하게 기억한다</div></div></div>` },
+  { id: 'rot2', sec: 's3', title: '오염의 예', html: `<div class="sec">3. 이론</div><h1>오염은 이렇게 생긴다</h1><div class="body"><div class="grid" style="--n:2"><div class="card"><span class="k">예 1. 버린 시안</span>디자인 A, B, C안을 만들게 하고 B를 골랐다.<br><small>A, C는 이제 필요 없는데 컨텍스트에 남아서 자꾸 섞여 나온다.</small></div><div class="card"><span class="k">예 2. 고치다 남은 흔적</span>오류를 고치느라 A → B → C → D를 거쳐 D를 얻었다.<br><small>헤매며 만든 잘못된 A, B, C가 컨텍스트에 그대로 남아 있다.</small></div></div><ul style="margin-top:24px"><li>그래서 일이 바뀌면 새 세션, 길어지면 정리</li><li>세션 안에서 컨텍스트가 커지면? 토큰은 더 소모되는데 오염·부패 때문에 성능은 떨어진다</li></ul></div>` },
+  { id: 'cmds1', sec: 's3', title: '명령어', html: `<div class="sec">3. 이론</div><h1>알아 둘 명령어</h1><div class="body"><ul><li><code>/cost</code> 지금까지 쓴 연료(토큰)</li><li><code>/context</code> 컨텍스트가 얼마나 찼는지</li><li><kbd>Esc</kbd> <kbd>Esc</kbd> <b>되감기</b>: 이전 대화로 돌아가기<ul><li>돌아갈 지점(내가 했던 질문)을 고른다</li><li>무엇을 되돌릴지 고른다: <b>대화만</b> · <b>코드만</b> · <b>대화와 코드 모두</b><br><small>실제 메뉴: Restore conversation · Restore code · Restore code and conversation</small></li><li>잘못 시켰거나 결과가 망가졌을 때, 오염된 대화까지 통째로 지울 수 있다</li></ul></li></ul></div>` },
+  { id: 'clicker', sec: 's4', title: '클리커 게임', html: `<div class="sec">4. 실습</div><h1>클리커 게임</h1><div class="body"><ul><li>선생님 화면 보기 → 직접 해 보기 → 더 다양한 기능을 넣어 <b>내 것 만들기</b></li><li>암호는 선생님이 알려 줍니다</li></ul><p style="margin-top:30px"><a class="link" href="clicker.html" target="_blank" rel="noopener">🎮 클리커 게임 열기<small></small></a></p></div>` },
+  { id: 'memo2', sec: 's4', title: '게임 설명 쓰기', html: `<div class="sec">4. 실습</div><h1>메모장에 게임 설명 쓰기</h1><div class="body"><ul><li>바탕화면에 <b>새 텍스트 문서</b>를 만들고 게임 설명을 쓴다</li><li>맨 앞에는 이 말을 붙인다</li></ul>${copy('HTML 게임 만들 거다. 아주 간단한 실습용 예제니까 짧고 단순하게 만들어야 돼. 내 요청이 불분명하거나 추가로 논의해야할 부분이 있으면 내게 충분히 질문한 후에 개발해야 돼.')}</div>` },
+  { id: 'clickspec', sec: 's4', title: '클리커 게임 설명', html: `<div class="sec">4. 실습</div><h1>게임 설명은 이렇게</h1><div class="body">${copy(`- 중앙에 버튼이 있고, 클릭하면 점수가 +1씩 누적된다.
+- 점수를 소모해서 아이템을 구입하거나 업그레이드할 수 있다. 아이템은 3종.
+  1) 클릭 시 누적되는 점수가 가산
+  2) N초당 M점씩 자동 획득
+  3) N초간 피버타임을 갖고 M초 쿨타임을 반복
+- 아이템을 구입하면 그 다음 업그레이드가 열린다.
+- 1)~3)의 구입 및 업그레이드 가격(점수)은 기능과 가격의 밸런스가 합리적이어야 한다. 업그레이드 단계는 최대 100단계까지 있고, 점수는 1,000 단위를 기준으로 K를 붙여 표시한다. 1200 = 1.2K
+- 업그레이드 사이에는 적당한 간격이 있어야 한다. 업그레이드하자마자 곧 다음 업그레이드가 쉽게 달성되면 의미가 없다.`)}</div>` },
+  { id: 'drag', sec: 's4', title: '파일로 시키기', html: `<div class="sec">4. 실습</div><h1>파일을 끌어다 넣기</h1><div class="body"><ul><li>메모장 파일을 cmd 창에 <b>드래그 앤 드롭</b> → <code>읽고 진행해</code></li><li>왜 굳이 파일로?<ul><li>메모장이 고치기 편하다</li><li>나중에 다시 쓸 수 있다</li><li>"내가 뭐라고 시켰더라?" 다시 읽을 수 있다</li></ul></li></ul></div>` },
+
+  { id: 'slider', sec: 's4', title: '슬라이더로 조절', html: `<div class="sec">5. 계속 실습</div><h1>숫자는 내가 직접 조절</h1><div class="body">${copy('슬라이더를 달아서 각종 UI의 위치 및 크기, 애니메이션 시간 등을 내가 직접 조절할 수 있게 해줘. 조절된 값을 복사하는 버튼도 달아줘. 값을 다 정하면 너한테 붙여넣기해서 줄게. 그 값을 반영해서 수정해.')}</div>` },
+  { id: 'slider2', sec: 's4', title: '슬라이더 체험', html: `<div class="sec">5. 계속 실습</div><h1>슬라이더를 직접 움직여 보자</h1><div class="body cols"><div class="tune"><label>버튼 크기 <input type="range" id="sBtn" min="60" max="200" value="100"><output id="oBtn"></output></label><label>글씨 크기 <input type="range" id="sFont" min="14" max="60" value="28"><output id="oFont"></output></label><textarea id="vals" readonly aria-label="조절된 값"></textarea><button id="copyVals" class="cbtn">값 복사</button></div><div class="demo"><button id="demoBtn">눌러 봐!</button></div></div>` },
+  { id: 'cmds2', sec: 's5', title: '세션 명령어', html: `<div class="sec">5. 계속 실습</div><h1>세션 다루기</h1><div class="body"><ul><li><code>/rename</code> 지금 세션에 이름 붙이기</li><li><code>/resume</code> 예전 세션 다시 열기</li><li><code>/clear</code> 대화를 비우고 새로 시작</li></ul></div>` },
+
+  { id: 'dungeon', sec: 's6', title: '던전 탐험 게임', html: `<div class="sec">6. 던전 탐험 게임</div><h1>이번엔 이런 게임</h1><div class="cols" style="flex:1;min-height:0;grid-template-columns:3fr 2fr"><div class="gamebox" style="height:100%"><img src="game-preview.png" alt="던전 게임 화면"></div><div style="align-self:center"><form id="gform" style="display:flex;gap:8px"><input id="gpw" type="password" autocomplete="off" placeholder="게임 비밀번호" aria-label="게임 비밀번호" style="font:24px var(--mono);width:220px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg)"><button class="cbtn">열기</button></form><div id="gmsg" style="color:var(--lock);min-height:1.5em;font-size:22px"></div><a class="link" id="glink" href="${GAME_URL}" target="_blank" rel="noopener" hidden>🏰 게임 사이트 열기<small></small></a><ul style="font-size:24px;margin-top:24px"><li>비밀번호는 선생님이 알려 줍니다</li><li>게임 해 보기 · 요소 사전 · 에셋 받기</li></ul></div></div>` },
+  { id: 'steps', sec: 's6', title: '단계별로 만들기', html: `<div class="sec">6. 던전 탐험 게임</div><h1>한 번에 말고, 단계별로</h1><div class="body"><ul><li>먼저 <b>단계별 계획</b>을 세우게 하고, 한 단계씩 만들게 한다</li><li><b>진행.html</b> 파일을 만들어 각 단계가 어떻게 진행되는지 볼 수 있게 하고, 단계가 끝날 때마다 <b>매번 업데이트</b>하도록 지시한다</li><li>왜?<ul><li>단계 사이마다 확인 · 수정 · 계획 변경이 가능</li><li>단계가 끝날 때마다 <code>/compact</code> 로 대화를 압축 → 오염·부패 방지</li></ul></li><li>모델 올리기: <code>/model</code> → <b>opus</b></li></ul></div>` },
+  { id: 'stepsPrompt', sec: 's6', title: '단계별 지시 프롬프트', html: `<div class="sec">6. 던전 탐험 게임</div><h1>단계별로 만들라고 이렇게 말한다</h1><div class="body"><ul><li>기획 설명 뒤에 이 말을 붙인다</li></ul>${copy('이 게임을 한 번에 만들지 말고, 기능을 단계별로 나눠서 1단계부터 차례로 구현해 줘. 먼저 단계 목록을 세워서 내게 보여 주고, 내가 허락하면 한 단계씩 만들어. 그리고 진행.html 파일을 만들어서, 각 단계가 완료인지 진행 중인지 예정인지 체크박스가 달린 흐름도로 한눈에 볼 수 있게 해 줘. 한 단계를 구현할 때마다 진행.html을 업데이트해.')}</div>` },
+  { id: 'stepsEx', sec: 's6', title: '단계 예시: 던전 게임', html: `<div class="sec">6. 던전 탐험 게임 · 예시</div><h1 style="font-size:48px">던전 게임은 이런 단계로 만들었다 <small style="font:22px var(--mono);color:var(--dim)">진행.html</small></h1><div class="body"><div class="flow"><div class="step done"><span class="box">☑</span><b>1. 방과 이동</b><small>방 그리기, 방향키 이동, 문으로 방 넘어가기, 층 만들기, 미니맵</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step done"><span class="box">☑</span><b>2. 시각 디자인</b><small>방·주인공 크기, 이동 속도, 색을 슬라이더로 → 값 복사 → 반영</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step done"><span class="box">☑</span><b>3. 전투</b><small>적, Z 회전 베기, 맞기와 무적, 문 잠김, 일반·매복·미믹 전투, 쓰러짐과 다시 시작</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step now"><span class="box">☐</span><b>4. 보관함과 아이템</b><small>보관함 10칸, 아이템 효과, 상자 보상, 음식, 버리기와 줍기</small><span class="st">진행 중</span></div><div class="arrow">▼</div><div class="step todo"><span class="box">☐</span><b>5. 방 종류</b><small>보상 방(상자·샘물), 상인 방과 가게 창</small><span class="st">예정</span></div><div class="arrow">▼</div><div class="step todo"><span class="box">☐</span><b>6. 보스</b><small>패턴과 예고, 분노(2페이즈), 보상, 계단, 다음 층</small><span class="st">예정</span></div></div><div style="margin-top:16px;font-size:22px;color:var(--code)">매 단계 끝: 직접 플레이 → 마음에 안 드는 것 고치기 → 진행.html에 ☑ → <code style="font-size:20px">/compact</code></div></div>` },
+  { id: 'free', sec: 's7', title: '자유롭게 만들기', html: `<div class="sec">7. 자유롭게 만들기</div><h1>내 게임 만들기</h1><div class="body"><ul><li>내 게임 기획을 설명하고, 맨 끝에 이 말을 붙인다</li></ul>${copy('내 기획에서 불분명하거나 미처 내가 놓친 부분이 있을 수 있으니, 충분히 기획에 대해 내게 상세히 물어봐줘. 내가 허락하면 1단계부터 순서대로 제작에 들어가자. 각 단계가 끝나면 나한테 검토받아.')}</div>` },
+];
+const SEC_NAME = { s2: '2. 오늘 할 것', s3: '3. 이론', s4: '4. 실습', s5: '5. 계속 실습' };
+
+// 잠금 장 끼워 넣기
+const DECK = [];
+for (const s of SLIDES) {
+  if (s.teacherOnly && !CODES) continue;   // 정답 장 등은 학생용 빌드에서 뺀다
+  if (LOCKED[s.sec] && !DECK.some(d => d.sec === s.sec)) DECK.push({ id: 'lock-' + s.sec, sec: s.sec, lock: true, title: '🔒 ' + SEC_NAME[s.sec] });
+  DECK.push(s);
+}
+
+// ===== 상태 =====
+const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+let teacher = CODES ? store.get('ppt-teacher', true) : false, at = Math.min(store.get('ppt-at', 0), DECK.length - 1);
+let notes = store.get('ppt-notes-v2', {}), unlocked = new Set(), keys = store.get('ppt-unlocked', {});
+(async () => { for (const [sec, code] of Object.entries(keys)) if (await check(sec, code)) unlocked.add(sec); render(); })();
+const stage = document.getElementById('stage');
+
+function canEnter(i) { const s = DECK[i]; return teacher || !LOCKED[s.sec] || s.lock || unlocked.has(s.sec); }
+function render() {
+  const s = DECK[at];
+  let html;
+  if (s.lock && teacher) html = `<div class="slide lockslide"><div class="sec">${SEC_NAME[s.sec]}</div><div class="icon">🔑</div><h1>이 구간 코드</h1><div class="code">${CODES[s.sec]}</div></div>`;
+  else if (s.lock) html = unlocked.has(s.sec)
+    ? `<div class="slide lockslide"><div class="icon">🔓</div><h1>${SEC_NAME[s.sec]}</h1><div class="body"><small>열렸습니다. → 로 넘어가세요</small></div></div>`
+    : `<div class="slide lockslide"><div class="sec">${SEC_NAME[s.sec]}</div><div class="icon">🔒</div><h1>선생님이 알려 주는 코드를 넣으세요</h1><form id="unlock"><input id="code" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="코드"></form><div class="msg" id="umsg"></div></div>`;
+  else html = `<div class="slide">${s.html}</div>`;
+  stage.innerHTML = html + `<div class="foot">${at + 1} / ${DECK.length}</div>` + (teacher ? '<div class="teacher">교사용 보기</div>' : '');
+  stage.querySelectorAll('.copy button').forEach(b => b.onclick = () => {
+    const t = b.parentElement.firstChild.textContent;
+    navigator.clipboard.writeText(t).then(() => { b.textContent = '복사됨'; setTimeout(() => b.textContent = '복사', 1200); }, () => {});
+  });
+  if (s.id === 'slider2') initSlider();
+  if (s.id === 'dungeon') initGame();
+  stage.querySelectorAll('a.link small').forEach(el => el.textContent = el.parentElement.href);
+  const f = document.getElementById('unlock');
+  if (f) { const inp = document.getElementById('code'); inp.focus(); f.onsubmit = async e => { e.preventDefault(); const code = inp.value.trim();
+    if (await check(s.sec, code)) { unlocked.add(s.sec); keys[s.sec] = code; store.set('ppt-unlocked', keys); go(1); }
+    else { document.getElementById('umsg').textContent = '코드가 틀렸습니다'; inp.select(); } }; }
+  document.getElementById('pos').textContent = `${at + 1} / ${DECK.length}`;
+  document.getElementById('jump').value = at;
+  document.getElementById('mode').textContent = teacher ? '교사용' : '학생용';
+  document.getElementById('note').value = notes[s.id]?.note || '';
+  store.set('ppt-at', at);
+}
+function go(d) {
+  const n = at + d; if (n < 0 || n >= DECK.length) return;
+  if (d > 0 && !canEnter(n)) return;   // 학생용: 코드 없이는 잠금 장을 못 넘는다
+  at = n; render();
+}
+function fit() { const v = document.getElementById('view'), k = Math.min(v.clientWidth / 1280, v.clientHeight / 720) * .98; stage.style.transform = `translate(-50%,-50%) scale(${k})`; }
+
+const jump = document.getElementById('jump');
+DECK.forEach((s, i) => jump.add(new Option(`${i + 1}. ${s.title || '표지'}`, i)));
+jump.onchange = () => { const i = +jump.value; if (canEnter(i)) { at = i; render(); } else render(); };
+document.getElementById('prev').onclick = () => go(-1);
+document.getElementById('next').onclick = () => go(1);
+document.getElementById('mode').onclick = () => { teacher = !teacher; store.set('ppt-teacher', teacher); if (!canEnter(at)) at = DECK.findIndex(d => d.sec === DECK[at].sec); render(); };
+document.getElementById('editBtn').onclick = e => { document.body.classList.toggle('editing'); e.target.classList.toggle('on'); fit(); };
+if (CODES) document.body.classList.add('editing');
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 's') { e.preventDefault(); save(); return; }
+  if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+  if (e.key === 'e' || e.key === 'E') document.getElementById('editBtn').click();
+});
+
+// ===== 슬라이더 체험 =====
+function initSlider() {
+  const b = document.getElementById('sBtn'), f = document.getElementById('sFont'), btn = document.getElementById('demoBtn'), vals = document.getElementById('vals');
+  const upd = () => {
+    btn.style.transform = `scale(${b.value / 100})`; btn.style.fontSize = f.value + 'px';
+    document.getElementById('oBtn').textContent = b.value + '%'; document.getElementById('oFont').textContent = f.value + 'px';
+    vals.value = `버튼 크기: ${b.value}%\n글씨 크기: ${f.value}px`;
+  };
+  b.oninput = f.oninput = upd; upd();
+  btn.onclick = () => { btn.textContent = btn.textContent === '눌러 봐!' ? '눌렸다!' : '눌러 봐!'; };
+  document.getElementById('copyVals').onclick = e => navigator.clipboard.writeText(vals.value).then(() => { e.target.textContent = '복사됨'; setTimeout(() => e.target.textContent = '값 복사', 1200); }, () => vals.select());
+}
+
+// ===== 던전 게임: 비밀번호가 맞으면 링크가 나타난다. 같은 주소에 배포하면 새 탭의 잠금 페이지는 sessionStorage로 자동 통과 =====
+function initGame() {
+  const show = () => { document.getElementById('gform').hidden = true; document.getElementById('glink').hidden = false; };
+  let saved = ''; try { saved = sessionStorage.getItem('class-pw') || ''; } catch {}
+  if (saved) check('g', saved).then(ok => ok && show());
+  document.getElementById('gform').onsubmit = async e => {
+    e.preventDefault(); const v = document.getElementById('gpw').value.trim();
+    if (await check('g', v)) { try { sessionStorage.setItem('class-pw', v); } catch {} show(); }
+    else document.getElementById('gmsg').textContent = '비밀번호가 틀렸습니다';
+  };
+}
+
+// ===== 지시 저장 =====
+// 입력할 때마다 브라우저에 임시 저장, SAVE를 누르면 JSON 파일로 저장(처음 한 번만 위치를 고르고, 다음부터는 같은 파일에 덮어씀)
+const status = document.getElementById('status');
+let dirty = false, fileHandle = null;
+document.getElementById('note').oninput = e => {
+  const s = DECK[at]; if (e.target.value.trim()) notes[s.id] = { title: s.title || '표지', note: e.target.value }; else delete notes[s.id];
+  store.set('ppt-notes-v2', notes); dirty = true; status.textContent = '저장 안 됨';
+};
+async function save() {
+  const order = DECK.map(d => d.id), data = { saved: new Date().toLocaleString('ko-KR'), notes: Object.fromEntries(order.filter(id => notes[id]).map(id => [id, { page: order.indexOf(id) + 1, ...notes[id] }])) };
+  const text = JSON.stringify(data, null, 2);
+  try {
+    if (!fileHandle && window.showSaveFilePicker) fileHandle = await showSaveFilePicker({ suggestedName: 'ppt-지시.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+    if (fileHandle) { const w = await fileHandle.createWritable(); await w.write(text); await w.close(); }
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = 'ppt-지시.json'; a.click(); }
+    dirty = false; status.textContent = `저장됨 ${new Date().toLocaleTimeString('ko-KR')} · ${Object.keys(data.notes).length}개 장`;
+  } catch (e) { if (e.name !== 'AbortError') status.textContent = '저장 실패: ' + e.message; }
+}
+document.getElementById('save').onclick = save;
+window.addEventListener('beforeunload', e => { if (dirty) e.preventDefault(); });
+
+window.addEventListener('resize', fit);
+render(); fit();
+</script>
+</body>
+</html>
