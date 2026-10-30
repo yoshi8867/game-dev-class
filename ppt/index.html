@@ -104,7 +104,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <script>
 // ===== 구간별 코드 (학생용에서 그 구간에 들어가려면 필요) =====
 // build.py가 학생용(docs/index.html)으로 뽑을 때 이 줄을 CODES = null + 해시로 바꾼다. 원본은 선생님 PC에만 둔다.
-const CODES = null, SALT = 'fe9e4d7bbd6fd3d0', HASHES = {"s2": "a1ebae2bef1aa18e65bccbb9add8ba3be4ea7e676372ef7e3ce0745d3fc77b20", "s3": "cff6469b889a0bcdd6c30befd2049749b9204dfa4f2d9c9de1be0de2a9251e4f", "s4": "ed6a0087f23210c503c72bea40c78c50c90ca3a2cec8116e6c2eea934ffcc25c", "s5": "d7eee7324fd246de4194868933891c7c515ea7930c01fc64594c6426c44027d4", "g": "0fc89c1a7ce72d5376595cf0a70fc58ce2dcc930f511c1366161f3613f52bbeb"};
+const CODES = null, SALT = 'da8b620f535a19e4', HASHES = {"s2": "42ae0ba1e78599af28754a1f1314db5b8dfc1159df22a225ea775426aa839f86", "s3": "de52225ca6dcd285ef2d833a39f176b58cd33eb499dee85cb74be924ead922ed", "s4": "dc1d5f54d68d80d60747d593ce1f7271d687e36ee6a4173a506043af4d64b9b1", "s6": "dc469b7461e75c064e37ef835d4a28199ba09b5fa27cff7c1accb443946d90ba"};
 const LOCKED = CODES || HASHES;   // 잠금 구간 목록
 const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
 const check = async (sec, code) => CODES ? code === CODES[sec] : await sha(SALT + code) === HASHES[sec];
@@ -146,15 +146,15 @@ const SLIDES = [
 
   { id: 'slider', sec: 's4', title: '슬라이더로 조절', html: `<div class="sec">5. 계속 실습</div><h1>숫자는 내가 직접 조절</h1><div class="body">${copy('슬라이더를 달아서 각종 UI의 위치 및 크기, 애니메이션 시간 등을 내가 직접 조절할 수 있게 해줘. 조절된 값을 복사하는 버튼도 달아줘. 값을 다 정하면 너한테 붙여넣기해서 줄게. 그 값을 반영해서 수정해.')}</div>` },
   { id: 'slider2', sec: 's4', title: '슬라이더 체험', html: `<div class="sec">5. 계속 실습</div><h1>슬라이더를 직접 움직여 보자</h1><div class="body cols"><div class="tune"><label>버튼 크기 <input type="range" id="sBtn" min="60" max="200" value="100"><output id="oBtn"></output></label><label>글씨 크기 <input type="range" id="sFont" min="14" max="60" value="28"><output id="oFont"></output></label><textarea id="vals" readonly aria-label="조절된 값"></textarea><button id="copyVals" class="cbtn">값 복사</button></div><div class="demo"><button id="demoBtn">눌러 봐!</button></div></div>` },
-  { id: 'cmds2', sec: 's5', title: '세션 명령어', html: `<div class="sec">5. 계속 실습</div><h1>세션 다루기</h1><div class="body"><ul><li><code>/rename</code> 지금 세션에 이름 붙이기</li><li><code>/resume</code> 예전 세션 다시 열기</li><li><code>/clear</code> 대화를 비우고 새로 시작</li></ul></div>` },
+  { id: 'cmds2', sec: 's4', title: '세션 명령어', html: `<div class="sec">5. 계속 실습</div><h1>세션 다루기</h1><div class="body"><ul><li><code>/rename</code> 지금 세션에 이름 붙이기</li><li><code>/resume</code> 예전 세션 다시 열기</li><li><code>/clear</code> 대화를 비우고 새로 시작</li></ul></div>` },
 
-  { id: 'dungeon', sec: 's6', title: '던전 탐험 게임', html: `<div class="sec">6. 던전 탐험 게임</div><h1>이번엔 이런 게임</h1><div class="cols" style="flex:1;min-height:0;grid-template-columns:3fr 2fr"><div class="gamebox" style="height:100%"><img src="game-preview.png" alt="던전 게임 화면"></div><div style="align-self:center"><form id="gform" style="display:flex;gap:8px"><input id="gpw" type="password" autocomplete="off" placeholder="게임 비밀번호" aria-label="게임 비밀번호" style="font:24px var(--mono);width:220px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg)"><button class="cbtn">열기</button></form><div id="gmsg" style="color:var(--lock);min-height:1.5em;font-size:22px"></div><a class="link" id="glink" href="${GAME_URL}" target="_blank" rel="noopener" hidden>🏰 게임 사이트 열기<small></small></a><ul style="font-size:24px;margin-top:24px"><li>비밀번호는 선생님이 알려 줍니다</li><li>게임 해 보기 · 요소 사전 · 에셋 받기</li></ul></div></div>` },
+  { id: 'dungeon', sec: 's6', title: '던전 탐험 게임', html: `<div class="sec">6. 던전 탐험 게임</div><h1>이번엔 이런 게임</h1><div class="cols" style="flex:1;min-height:0;grid-template-columns:3fr 2fr"><div class="gamebox" style="height:100%"><img src="game-preview.png" alt="던전 게임 화면"></div><div style="align-self:center"><a class="link" id="glink" href="${GAME_URL}" target="_blank" rel="noopener">🏰 게임 사이트 열기<small></small></a><ul style="font-size:24px;margin-top:24px"><li>게임 해 보기 · 요소 사전 · 에셋 받기</li></ul></div></div>` },
   { id: 'steps', sec: 's6', title: '단계별로 만들기', html: `<div class="sec">6. 던전 탐험 게임</div><h1>한 번에 말고, 단계별로</h1><div class="body"><ul><li>먼저 <b>단계별 계획</b>을 세우게 하고, 한 단계씩 만들게 한다</li><li><b>진행.html</b> 파일을 만들어 각 단계가 어떻게 진행되는지 볼 수 있게 하고, 단계가 끝날 때마다 <b>매번 업데이트</b>하도록 지시한다</li><li>왜?<ul><li>단계 사이마다 확인 · 수정 · 계획 변경이 가능</li><li>단계가 끝날 때마다 <code>/compact</code> 로 대화를 압축 → 오염·부패 방지</li></ul></li><li>모델 올리기: <code>/model</code> → <b>opus</b></li></ul></div>` },
   { id: 'stepsPrompt', sec: 's6', title: '단계별 지시 프롬프트', html: `<div class="sec">6. 던전 탐험 게임</div><h1>단계별로 만들라고 이렇게 말한다</h1><div class="body"><ul><li>기획 설명 뒤에 이 말을 붙인다</li></ul>${copy('이 게임을 한 번에 만들지 말고, 기능을 단계별로 나눠서 1단계부터 차례로 구현해 줘. 먼저 단계 목록을 세워서 내게 보여 주고, 내가 허락하면 한 단계씩 만들어. 그리고 진행.html 파일을 만들어서, 각 단계가 완료인지 진행 중인지 예정인지 체크박스가 달린 흐름도로 한눈에 볼 수 있게 해 줘. 한 단계를 구현할 때마다 진행.html을 업데이트해.')}</div>` },
   { id: 'stepsEx', sec: 's6', title: '단계 예시: 던전 게임', html: `<div class="sec">6. 던전 탐험 게임 · 예시</div><h1 style="font-size:48px">던전 게임은 이런 단계로 만들었다 <small style="font:22px var(--mono);color:var(--dim)">진행.html</small></h1><div class="body"><div class="flow"><div class="step done"><span class="box">☑</span><b>1. 방과 이동</b><small>방 그리기, 방향키 이동, 문으로 방 넘어가기, 층 만들기, 미니맵</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step done"><span class="box">☑</span><b>2. 시각 디자인</b><small>방·주인공 크기, 이동 속도, 색을 슬라이더로 → 값 복사 → 반영</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step done"><span class="box">☑</span><b>3. 전투</b><small>적, Z 회전 베기, 맞기와 무적, 문 잠김, 일반·매복·미믹 전투, 쓰러짐과 다시 시작</small><span class="st">완료</span></div><div class="arrow">▼</div><div class="step now"><span class="box">☐</span><b>4. 보관함과 아이템</b><small>보관함 10칸, 아이템 효과, 상자 보상, 음식, 버리기와 줍기</small><span class="st">진행 중</span></div><div class="arrow">▼</div><div class="step todo"><span class="box">☐</span><b>5. 방 종류</b><small>보상 방(상자·샘물), 상인 방과 가게 창</small><span class="st">예정</span></div><div class="arrow">▼</div><div class="step todo"><span class="box">☐</span><b>6. 보스</b><small>패턴과 예고, 분노(2페이즈), 보상, 계단, 다음 층</small><span class="st">예정</span></div></div><div style="margin-top:16px;font-size:22px;color:var(--code)">매 단계 끝: 직접 플레이 → 마음에 안 드는 것 고치기 → 진행.html에 ☑ → <code style="font-size:20px">/compact</code></div></div>` },
   { id: 'free', sec: 's7', title: '자유롭게 만들기', html: `<div class="sec">7. 자유롭게 만들기</div><h1>내 게임 만들기</h1><div class="body"><ul><li>내 게임 기획을 설명하고, 맨 끝에 이 말을 붙인다</li></ul>${copy('내 기획에서 불분명하거나 미처 내가 놓친 부분이 있을 수 있으니, 충분히 기획에 대해 내게 상세히 물어봐줘. 내가 허락하면 1단계부터 순서대로 제작에 들어가자. 각 단계가 끝나면 나한테 검토받아.')}</div>` },
 ];
-const SEC_NAME = { s2: '2. 오늘 할 것', s3: '3. 이론', s4: '4. 실습', s5: '5. 계속 실습' };
+const SEC_NAME = { s2: '2. 오늘 할 것', s3: '3. 이론', s4: '4. 실습', s6: '6. 던전 탐험 게임' };
 
 // 잠금 장 끼워 넣기
 const DECK = [];
@@ -186,7 +186,6 @@ function render() {
     navigator.clipboard.writeText(t).then(() => { b.textContent = '복사됨'; setTimeout(() => b.textContent = '복사', 1200); }, () => {});
   });
   if (s.id === 'slider2') initSlider();
-  if (s.id === 'dungeon') initGame();
   stage.querySelectorAll('a.link small').forEach(el => el.textContent = el.parentElement.href);
   const f = document.getElementById('unlock');
   if (f) { const inp = document.getElementById('code'); inp.focus(); f.onsubmit = async e => { e.preventDefault(); const code = inp.value.trim();
@@ -234,17 +233,6 @@ function initSlider() {
   document.getElementById('copyVals').onclick = e => navigator.clipboard.writeText(vals.value).then(() => { e.target.textContent = '복사됨'; setTimeout(() => e.target.textContent = '값 복사', 1200); }, () => vals.select());
 }
 
-// ===== 던전 게임: 비밀번호가 맞으면 링크가 나타난다. 같은 주소에 배포하면 새 탭의 잠금 페이지는 sessionStorage로 자동 통과 =====
-function initGame() {
-  const show = () => { document.getElementById('gform').hidden = true; document.getElementById('glink').hidden = false; };
-  let saved = ''; try { saved = sessionStorage.getItem('class-pw') || ''; } catch {}
-  if (saved) check('g', saved).then(ok => ok && show());
-  document.getElementById('gform').onsubmit = async e => {
-    e.preventDefault(); const v = document.getElementById('gpw').value.trim();
-    if (await check('g', v)) { try { sessionStorage.setItem('class-pw', v); } catch {} show(); }
-    else document.getElementById('gmsg').textContent = '비밀번호가 틀렸습니다';
-  };
-}
 
 // ===== 지시 저장 =====
 // 입력할 때마다 브라우저에 임시 저장, SAVE를 누르면 JSON 파일로 저장(처음 한 번만 위치를 고르고, 다음부터는 같은 파일에 덮어씀)

@@ -3,44 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>잠긴 페이지</title>
+<title>던전 게임 만들기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&display=swap">
 <style>
-  :root { --bg: #17110f; --panel: #221a17; --line: #4a3a33; --fg: #ece2d6; --dim: #a8988b; --torch: #f0a04b; --bad: #e0484e; color-scheme: dark }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font: 16px/1.6 "Malgun Gothic", sans-serif; padding: 16px; box-sizing: border-box }
-  form { display: grid; gap: 12px; width: min(320px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 24px }
-  h1 { margin: 0; font-size: 22px } p { margin: 0; color: var(--dim); font-size: 14px }
-  input, button { font: inherit; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg) }
-  button { background: var(--torch); color: var(--bg); border: 0; font-weight: 700; cursor: pointer }
-  #msg { color: var(--bad); min-height: 1.6em }
+:root {
+  --bg: #17110f; --panel: #221a17; --line: #4a3a33; --fg: #ece2d6; --dim: #a8988b; --torch: #f0a04b;
+  --display: "Do Hyeon", "Malgun Gothic", sans-serif; --body: "Gowun Dodum", "Malgun Gothic", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 var(--body) }
+main { max-width: 860px; margin: 0 auto; padding-block: 48px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap }
+header img { width: 64px; image-rendering: pixelated }
+h1 { font: 52px/1 var(--display); margin: 0 }
+.lead { color: var(--dim); max-width: 60ch; margin: 14px 0 32px }
+ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; counter-reset: s }
+li { counter-increment: s; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px }
+li::before { content: counter(s); font: 40px/1 var(--display); color: var(--torch); text-align: center }
+li h2 { font: 24px/1.2 var(--display); margin: 0 0 4px } li p { margin: 0; color: var(--dim); font-size: 15px }
+a.btn { font: 18px var(--display); color: var(--bg); background: var(--torch); text-decoration: none; padding: 8px 18px; border-radius: 6px; white-space: nowrap }
+a.btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px }
+footer { margin-top: 40px; color: var(--dim); font-size: 13px }
+footer a { color: var(--dim) }
+@media (max-width: 560px) { li { grid-template-columns: 40px minmax(0, 1fr) } li .btn { grid-column: 2 } h1 { font-size: 40px } }
 </style>
 </head>
 <body>
-<form id="f">
-  <h1>🔒 잠긴 페이지</h1>
-  <p>선생님이 알려 준 비밀번호를 입력하세요.</p>
-  <label for="pw" hidden>비밀번호</label>
-  <input id="pw" type="password" autocomplete="off" autofocus>
-  <button>열기</button>
-  <p id="msg"></p>
-</form>
-<script>
-(() => {   // 감싸 두어야 풀린 페이지의 변수 이름과 안 부딪힌다
-const P = {"s":"tCO/f/T4CYHUdHI3TMbzQw==","i":"SbvQhvRk/fiFzKPD","d":"YycYE7Xb0KSboPP2mutRAXxAGNMxsQth4sdF24OmVWVUHy+JybErgcUwz8Ul2ujdG8I0+5ZTY+cBZmVcSqB3jVdUrmHMJjQeSMwMZM7BVBf8xQSxAJ6+akV8UXP+2VyZFMkD9RTml6Z1+vnyX7T8WPzkysioHJtpJ2B+J4vlF7J2XOwAuRwxSPTuXAEmoF7qatu0mSpp9KL3ZZWXXFGSYewO+OomaJIlsNKlma1rghsSWWR7Nz/L/CqAUpWJwDlYb8fgX2gsJIk8KrgzPF7IY/9wWlmOssj4PrIxhnJkIDh/Nm0+BQCtjkqXd1s4GB5M4TBwr2l0BkQPshrF3uMOLHPaW7bl9Ab7g1zi9ho6lds4/cp+WBx16EB3vZJv/RozzahHympxcIq3VDHTMMxf96pgNZLAUhiw4hEW81WXUYD4B/iEZnp4Y3bHQ+GP2vBIiA5Px4gnAUfaJGUgIQq3YHbXuTAMynZpDDGfxy4mNvSpG6DbgKfuvYx/7GdSq20wK9RfWAaGRe3u7LGNlCZEUEJBo48LEyJ4SCmuIB5OFlD85zmI9GUjRpec1/3dtWUmEOz7lWZvNffgl5V8KrKqeIFSRfI1jN0zCgEaZt/3p1kvF4K6QKK1HADnO+3A21ZPqfs7wv/suXcdsYbF9hgKw3qpZQ0qmFyfmzIVrf0jlKjni236oOL6IEO9e3x/+cLthlRvgVbXFeOmxCWCQ0UsCgaqSmpQ6UCdPXkyzBERYeGr2s29iTmr72/lODMRG41fLHeNA+NkgTcczBYd5tugfDiTY4GtkmXEGD6TlAichxUyjCa6ChhPRq0wPrPywT0USY4C8+0zFEJ5LCD36VIf3aIfNVOwYgqepwzK+pDbyEWyT2Zbl7wDzigYEa50ZSXeCCGpd7Vl81ddwqb7o4rR3CLXEA07sqOs+W/EYpp9Cvh2g8zUmIuQrMSvCSMT94NcTbVQM0dUUoL4yqjFzFpT2gkGxwxXxgbz5RIHczPLNNFPK2JUTOF4xEAcBolFYQm5lqAaYA2we5vkoxLJhE/KgTy/Dk17wYr6SXDr+gTx2P/Uf2DL9/1+/KvZc+YNbSU+aHcik1rAxxLbLOfBfNacvdotFJuwxD0qvaOhC1n55n9bBzBOfkE5We5r76QTjYIc2vWlQrJSCtI20UV8z0i8uoRZeCRerkpmN0MnM54XtEYsyp2rP/o/tcQLqjZjdoGsPHOz5XcGOxyEKNjdXR/2wdS5gAXlf1koUiSWguPExswiPC/+z/wJF0GkHNgCGDEl1a6knyDUv8ouuPxio7bKFcZvphQ3Jv4qrJfdzHHQBVJPDl8ul46yIT2pYcI7QozgKfqugMc976SIf7AzofkI6QxHmr6065fxTXgbE3Q7ETtoCSNxrBKQdq5fgv5CkPV474EcT7O86JzcSQ52S8v5XKvny6s5O5uE4y2Xr5qwpANmad8mT51A3IHcrTmm4Yu5uOZYpEsAmAocG3mNEcK0m3P8ddptmBUM4V711FhstG6Oc5AsCoOAYD27spxLCvvUkBz5ag5kNR389jN/USByq96iveuRUV1Sq+HpKuLI7/3wMV+s/k/8QuZzlJV1DoEIKKhoXdNTB35jxLwK4DUN6VTcS+HmhXLaFAtrOVfWcQycGMIU2c+Og2MptiDPIszmFZUCVLxlftQymEBXTxlZLfPvQ5Vkvtxg32TsuxOwKP0VyhfY/eztISDWa5eCrJ4uzMBo+8hmtMUuZ+PkoUnAR/EoT/dEd7rfcjC7S1E46JcV0hMorWW80afkUQ2yk2Qvjx9vKno3OdBajYGjf0NZOMlwrX2DIPs1T/WxG7AYku3P4SCcO9lR2DyAECxO0uOMjNc9Kh1IIQg0iBHTJMwWVI+GDgJG1Rs07wxVUjh6PzrL8SvesKW/ik+6uy5+uLO8yFOeyCj86L9ZbUCvHUfPuydtevB6fQqciP4sc1+UWODITgI5BjmjY6FrGtwokpnnQzRRtW0N8i7ifWhd1YtFRTlftwfvhvMy+Tpis9ncGEBkukZGQEjgPhasYnd05TSaNRJ0mGIqr3qmuWD/n2x9DqkauVenTAKvoI2pOKYg1Zf/G4FUEQ6f4LMUdP4kpjBc8jEcMi+xUmJwgqhevcYikX4qZHpLdpv3CAoBIJeWwW6ZMRreWgat/hFqzvhR19jlML23RwP3vIKECVX6+IDNFRNiQ3hwhpZCcMOwcKbm0iwI3Tn4FGIVkbjqHdy48aP9PzDEhT3vb9QF2+2/4a8z3j/8Nke6pMG2JYnMVBc4nI2bGPOzbVCnoajCMbpCk1gZoK7qq28YuO9cZREapAPPjYmFbWldhQcyz/pp6+79/F8xBd98pQ7OU79jYIDUyo30QN55NuOhOGAMppAFegNRlGw7DRWLLJR210KaRItKuZYPZ2ZXo6rCnKHexMidXwG5edFPb1gIicc9ZaoEl8DdNIOY+cd0buqLFP1PAKmlpUB1I17N4rjrUhLvcuFB5qaKGo/kXrvPGglNmMQr8IqqLaGQ8l8+GpuXR56sSaKYJ6vQqQrTfqCU9diRtwMsDLLn10xXzGUAg94Y3rXIRexDCd7K55cXTCmuuFla96WCVX3/NFGe2JFp2oSdrGWKvgdRqWQqAmpnZuN4Pgh18Yq0RHJF9rTZjBxYZEIJjMZXkgax4kyHHGQPBPDBKNs/Ej6F7O4YeNpSUH97yuIFMmEBEszmTn1YE57tYixIKT60/53nLNxnsvkd9XQrCYcqPXv0L+mYwBWTD6yfym7wORxI8JpQGLWf1lde1HQd/Jj6aj1owxMc5sjro0dX4aRI0cbfusHx/sdmB5AhUJqmSaeYbyU1wqnOdchhXTxaLF9GyqvfL6qq30mzLS62njfrC6nB9HW8XWylMZJBFgCZtHDVW69dpJ9VfqF0URnIOjSDEPeKw4Czl9tJQ84MOqFAQoRPcMJoYJk/+R60hVnwQMzihtoeHkHPc0mpOzzu/xfQYTvzEB/OpKn4geVK4BC0MxfPzh6pSw8miUAbJAwzmUdHuTqS3rI7OUfE6Z+MmNr4OMBV7/7jRXjlEv3B9FQKc9FRTfP3XKWV9QOJFY4SJF42romc61rRExAgXTcaiO1qnVvig291OOqH3q5/stx2Hp6dZnWCQPci4ze0Vf6V/ro5474mdKTCD6P3o9CnlONdnSMcHe/9InfSK1A7yCy4KVnIcJQsYjp+t1dIKkPFChKhkKzu0aHWnxOjIQXisZU/KvAZGW55U785WPpilB/A4VH8/06ae0QLzIWOCFwFx2VtwuBgUaJeeyJucF4MffAHtytgrp5Wrp6eI/gdfbgl/Ku1/1tGkRoOgve8TkGPeAoo5e6cDOOjQYLZp/C/JfYR+lJvEaWhIRe12h1ZKZIAXD5BaEXIDQyaLIjS7V7c3mDO36t/C+GQcfl8gxg0Q3nlsvn6F7ySzRZdi47iI9ypt6KKtMVwsGTqy5lTtbmUcCnuKubPm7od1ysNRa76J0z/nWCyb8lbnFDYcW8IeLeyipzEj7wa1hyLyrxDxG20HBa1cM72pfYzH8rmCak2Epy/wRnx9iY800szQNGU2CgDnPw4LZy1+SHf5JRB1+/GNNMzcQqiR/HFQm/r91Kklz96Nm5QHsx5sWJqxQyZh0JnzRubpk+8vdMcY0sksGQ/FifDsVuF1oBexs/+A/5sCfviVQtNK4glYzUl1c6PGG2ic6FTBxOKtNyI/rkCHOBsYIrEgux6qUvaiHB1UJTdAmCQRQdQICLAqUSQ/UreoCr3JLnt2ndFN0xT71mJClsFCY7NsgDt9eTddjX4sWSbdbjIDl9L2DWrQQAe16pb8R2qKagoxhngdkPRRu7JFYmlYkYVBK0rK9ebY5hkDh65qnBmJb+SpUl8lYEWITgVlS1FTKSJdvMvRM8vWXOnhARg3k7fIAucCbLI+O/vHdh+mGCU1SrjBQasA04F9c/gnVKk4adEP8oK/JqZefU0Mt7s1QKVDsKoXe5V3SzB+5dTZZHCIjh31gMySoYN0ydvqMClO9kJNBQtWEc9TNLDwJ2PMx7sz8GEe5LwEBWkeO0x8pjb+ahCzMdMxoiGAqyImRhQPmd3eZTCKFvyZT1R6blCVJL24bF2CbdOzB9uJiN/TQnsOtSwCqyB/hhBMOdDzf7bQ5Yq4SyvnhG+2oS2JbwTlG2tSITcqB0hr1fYjCy9BcyaDIT9WW3vglpdNgRZ4h2ekI1tT3xL0IGIMcM56/UJUd5Zv16GOKBDL8rgNR3jG3JhzhMWvWIhy3fbBHrNVrhNf3EAGSaSLHkPZ3OPSSlbAqrghiqS5sfc33I6UhHXLJxYG05MgJYLkx+x1Cz+vrYjLmPXfrxoMrAzp3mFDWbsykxayihbd3VEU0nyHogOf5nbiUybSINR+VybXcQ4wIgSj8oROWtEzXJMmYlA1z6HuozLkNkAChQWhYak6dfdr9Pyb+81g4FWk2I3uZfUf/Dknol123knTqI="};
-const bin = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-async function unlock(pw) {
-  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
-  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bin(P.s), iterations: 200000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-  const html = new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin(P.i) }, key, bin(P.d)));
-  try { sessionStorage.setItem('class-pw', pw); } catch {}
-  document.open(); document.write(html); document.close();
-}
-document.getElementById('f').onsubmit = e => {
-  e.preventDefault();
-  unlock(document.getElementById('pw').value).catch(() => { document.getElementById('msg').textContent = '비밀번호가 틀렸습니다.'; });
-};
-let saved = null; try { saved = sessionStorage.getItem('class-pw'); } catch {}
-if (saved) unlock(saved).catch(() => {});
-})();
-</script>
+<main>
+<header><img src="assets/frames/knight_m_idle_anim_f0.png" alt=""><h1>던전 게임 만들기</h1></header>
+<p class="lead">완성된 던전 게임을 해 보고, 게임 속 요소를 정리한 사전을 읽은 뒤, AI에게 이 게임을 한 단계씩 만들게 하는 지시문을 직접 써 봅니다.</p>
+<ol>
+  <li><div><h2>게임 해 보기</h2><p>방향키로 이동, Z로 회전 베기. 보스까지 가 보세요. 무엇이 어디에 있고 어떻게 움직이는지 눈여겨봅니다.</p></div><a class="btn" href="play.html">플레이</a></li>
+  <li><div><h2>요소 사전 읽기</h2><p>주인공, 적, 보스, 아이템, 보관함, 방의 이름과 위치, 하는 일. 숫자는 비워 두었으니 직접 정하세요.</p></div><a class="btn" href="guide.html">읽기</a></li>
+  <li><div><h2>에셋 내려받기</h2><p>게임에 쓴 픽셀 그림 전부(zip). 압축을 풀어 내 작업 폴더에 넣고 AI에게 파일 이름을 알려 주세요.</p></div><a class="btn" href="assets.zip" download>zip 받기</a></li>
+</ol>
+<footer>그림: <a href="https://0x72.itch.io/dungeontileset-ii">0x72 DungeonTileset II</a>, <a href="https://kenney.nl/assets/tiny-dungeon">Kenney Tiny Dungeon</a> (둘 다 CC0)</footer>
+</main>
 </body>
 </html>
